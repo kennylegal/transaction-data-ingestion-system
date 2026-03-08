@@ -1,13 +1,15 @@
 import psycopg2
 
-def create_db(cur):
+def create_db(cur, conn):
     cur.execute(
         """
     create table if not exists Users(
         user_id  serial primary key,
-        email varchar(50),
-        phone varchar (12),
-        kyc_status bool,
+        username varchar(200),
+        email varchar(100),
+        phone varchar (50),
+        gender varchar (10),
+        age int,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );""")
@@ -40,21 +42,6 @@ def create_db(cur):
         );
         """
     )
-    
-def populate_table(cur, ):
-    pass
-
-if __name__ == "__main__":
-    conn = psycopg2.connect(
-        database="wallet_project",
-        user="admin",
-        password="mydb",
-        host="localhost",
-        port="5435"
-    )
-    cur = conn.cursor()
-    create_db(cur)
     conn.commit()
 
-    cur.close()
-    conn.close()
+

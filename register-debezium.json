@@ -1,0 +1,22 @@
+{
+    "name": "ti-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "datadb",
+        "database.port": "5432",
+        "database.user": "admin",
+        "database.password": "mydbs",
+        "database.dbname" : "wallet_project",
+        "topic.prefix": "ti",
+        "schema.include.list": "public",
+        "slot.name" : "debezium_slot",
+        "plugin.name" : "pgoutput",
+        "snapshot.mode" : "Initial",
+        "publication.autocreate.mode": "all_tables",
+        "topic.creation.default.replication.factor" : 1,
+        "topic.creation.default.partitions" : 3,
+        "topic.creation.default.cleanup.policy" : "compact",
+        "topic.creation.default.compression.type" : "gzip"
+    }
+}

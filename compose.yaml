@@ -12,7 +12,7 @@ services:
     environment:
       POSTGRES_DB: "wallet_project"
       POSTGRES_USER: "admin"
-      POSTGRES_PASSWORD: "mydb"
+      POSTGRES_PASSWORD: "mydbs"
     command: >
       postgres
       -c wal_level=logical
@@ -26,21 +26,37 @@ services:
     image: apache/kafka:4.2.0
     container_name: kafka-broker
     ports:
-      - "29092:29092"
+      - "9092:9092"
       - "9093:9093"
+      - "29092:29092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_LISTENERS: PLAINTEXT://:29092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,CONTROLLER://broker:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092,CONTROLLER://broker:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - kafka-net
+    restart: unless-stopped
+
+
+  broker_ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: broker_ui
+    depends_on:
+      - broker
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: broker:9092
     networks:
       - kafka-net
     restart: unless-stopped
@@ -51,7 +67,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      BOOTSTRAP_SERVERS: broker:29092
+      BOOTSTRAP_SERVERS: broker:9092
       REST_ADVERTISED_HOST_NAME: connect
       REST_PORT: 8083
       GROUP_ID: "1"
